@@ -17,3 +17,10 @@ o	PART 3: I did the same thing to vert./hori. placement to get first character o
 5. Total time/game duration
 6. In computerTurn method, added Breadth First Search, Binary Tree and in order traversal to make CPU more player-like using playermap array. Essentially, once the CPU gets a hit on a player’s ship’s part, it looks for adjacent cells next to hit so it is more likely to knock down a player’s ships. I found after I did this part, the games took double the time in minutes from 3 ½ minutes to about 7 minutes. Of course, the player turns also doubled from 30-40 to 80-90.
 
+5/4/2024 Update:
+My hitAdjacent() method caused an Index of Bounds Error on same games. the issue was in the 2nd and 3rd if statements where its checking that the surrounding columns exist, but then working with adjacent rows instead
+-Then, I realized my binary tree/inorder traversal did nothing because the computer, almost always, got twice as less as hits than the player so the computer was still attacking randomly. And some game will prematurely end with the computer only getting 7-8 hits/knocking only one ship.
+- used LinkedList instead because my plan to use binary tree/inorder BST was a mess.
+- So I wiped everything clean and decided to use a linkedlist mostly because it wont cause a headache and also for space and simplicity.
+- So I used a linkedlist to track hits, but before that, first hit is random
+- then so once the computer gets a first hit (which is random), the computer decides to hit at adjacent cells then using boolean logic, receives whether or not their new hit is acutally a hit then if true, carries onto hitting other adjacent cells, so the cpu acts somewhat intelligently like a player.
