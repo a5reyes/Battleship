@@ -8,8 +8,7 @@ public class Game { //below are global variables; in main, are local variables
     public static int[][] cShips = {{0,0,5,0,0},{0,0,4,0,0},{0,0,3,0,0},{0,0,3,0,0},{0,0,2,0,0}};
     public static int cShipRow =0;
     public static long startTime;
-    public static Node root;
-    
+    static LinkedList<Node> hitCells = new LinkedList<>();
     
     public static void main(String[] args) {
         long startTime = System.nanoTime();
@@ -43,7 +42,7 @@ public class Game { //below are global variables; in main, are local variables
         if(computerShips>playerShips)
             System.out.println("Sorry, you lost!");
         else if(computerShips<playerShips)
-            System.out.println("\u001B{1mYou won!");
+            System.out.println("You won!");
             System.out.println("Player Turns: " + counter.getCount());
             long endTime = System.nanoTime(); 
             long duration = endTime - startTime;
@@ -234,62 +233,51 @@ public class Game { //below are global variables; in main, are local variables
         }
     }
     public static void computerTurn(){
-        BinaryTree tree = new BinaryTree();
-        int row =(int)(Math.random() * 10)+1;
-        int col =(int)(Math.random() * 10)+1;
-        if(PlayerMap[row-1][col-1]!=0 && PlayerMap[row-1][col-1]!=1 ){
-            computerTurn();
-        } else{
-            if(PlayerMap[row-1][col-1]==1){
+        int row;
+        int col;
+        if(hitCells.isEmpty()){
+            row = (int)(Math.random() * 10) + 1;
+            col = (int)(Math.random() * 10) + 1;
+            if (hitCell(row - 1, col)) {
                 System.out.println("Computer Hit!");
-                PlayerMap[row-1][col-1]=2;
-                inorder(tree.root);
-                PlayerMap[row-1][col-1] += hitAdjacent(row - 1, col - 1);
-            } else{
+            } else {
                 System.out.println("Computer Miss!");
-                PlayerMap[row-1][col-1]=-1;
+            }
+        } else {
+            Node lastHit = hitCells.getLast();
+            row = lastHit.row;
+            col = lastHit.col;
+            if (!hitAdjacent(row, col)){
+                hitCells.removeLast();
+                computerTurn();
+                return;
             }
         }
     }
-    private static int hitAdjacent(int row, int col){
-        int count2 = 0;
-        if (row > 0 && PlayerMap[row - 1][col] == 1){
-            PlayerMap[row-1][col] = 2;
-            count2++;
-        }
-        if (row < 9 && PlayerMap[row + 1][col] == 1){
-            PlayerMap[row+1][col] = 2;
-            count2++;
-        }
-        if (col > 0 && PlayerMap[row][col-1] == 1){
-            PlayerMap[row-1][col] = 2;
-            count2++;
-        }
-        if (col < 9 && PlayerMap[row][col+1] == 1){
-            PlayerMap[row+1][col] = 2;
-            count2++;
-        }
-        return count2;
+    private static boolean hitAdjacent(int row, int col){
+        boolean hit = false;
+        hit = hit || hitCell(row - 1, col);
+        hit = hit || hitCell(row + 1, col);
+        hit = hit || hitCell(row, col - 1);
+        hit = hit || hitCell(row, col + 1);
+        return hit;
     }
-    private static void inorder(Node root) {
-        if (root == null)
-            return;
-        inorder(root.left);
-        System.out.print(root.data + " ");
-        inorder(root.right);
+    private static boolean hitCell(int row, int col){
+        if (row >= 1 && row <= 10 && col >=1 && col <=10 && PlayerMap[row - 1][col - 1] == 1){
+            System.out.println("Computer Hit!");
+            PlayerMap[row-1][col-1]=2;
+            hitCells.add(new Node(row, col));
+            return true;
+        }
+        return false;
+    }
+    static class Node{
+        int row;
+        int col;
+        Node(int row, int col){
+            this.row = row;
+            this.col = col;
+        }
     }
 }
-class BinaryTree {
-    Node root;
-    BinaryTree() {
-        root = null;
-    }
-}
-class Node{
-    int data;
-    Node left, right;
-    public Node(int item){
-        data = item;
-        left = right = null;
-    }
-}
+
